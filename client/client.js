@@ -1,6 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const video = $('screen');
 const STORAGE_KEY = 'kopru-code';
+const AUTO_KB_KEY = 'kopru-auto-keyboard';
 const MAX_ZOOM = 5;
 const isMobile = /Android|iPhone|iPad/.test(navigator.userAgent);
 
@@ -13,6 +14,7 @@ let hostPlatform = 'darwin';
 let swapMeta = false;
 let trackpad = false;
 let fastMode = false;
+let autoKeyboard = false;
 let hostError = '';
 let inSession = false;
 let wakeLock;
@@ -28,8 +30,8 @@ const REASONS = {
 };
 
 const storage = {
-  get: () => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null; } },
-  set: (v) => { try { localStorage.setItem(STORAGE_KEY, v); } catch { /* gizli pencere */ } },
+  get: (key = STORAGE_KEY) => { try { return localStorage.getItem(key); } catch { return null; } },
+  set: (v, key = STORAGE_KEY) => { try { localStorage.setItem(key, v); } catch { /* gizli pencere */ } },
   clear: () => { try { localStorage.removeItem(STORAGE_KEY); } catch { /* gizli pencere */ } },
 };
 
@@ -171,6 +173,8 @@ function endSession(message) {
   $('clip-get').disabled = true;
   $('sound').hidden = true;
   $('toast').hidden = true;
+  autoKeyboard = false;
+  typing.blur();
   $('display-row').hidden = true;
   show(code ? 'devices' : 'login');
 }
@@ -218,6 +222,15 @@ function onControl(ev) {
       remoteClip = ev.s;
       $('clip-get').disabled = false;
       navigator.clipboard?.writeText(ev.s).catch(() => {});
+      break;
+    case 'focus':
+      if (ev.text && $('auto-kb').checked) {
+        showKeyboard();
+        autoKeyboard = true;
+      } else if (!ev.text && autoKeyboard) {
+        hideKeyboard();
+        autoKeyboard = false;
+      }
       break;
     case 'saved':
       toast(`Uzak bilgisayarda İndirilenler klasörüne kaydedildi: ${ev.name}`);
@@ -477,6 +490,27 @@ typing.addEventListener('input', () => {
   if (now.length > 200) typing.value = lastTyped = '';
 });
 
+if (navigator.virtualKeyboard) typing.setAttribute('virtualkeyboardpolicy', 'manual');
+
+function keyboardVisible() {
+  const tall = Math.max(screen.width, screen.height);
+  const short = Math.min(screen.width, screen.height);
+  const full = innerWidth > innerHeight || screen.orientation?.type.startsWith('landscape') ? short : tall;
+  return document.activeElement === typing && (visualViewport?.height ?? innerHeight) < full * 0.75;
+}
+
+// Tarayıcı klavyeyi yalnızca dokunuştan sonraki birkaç saniye içinde açar.
+function showKeyboard() {
+  if (document.activeElement === typing && !navigator.virtualKeyboard) typing.blur();
+  typing.focus({ preventScroll: true });
+  navigator.virtualKeyboard?.show();
+}
+
+function hideKeyboard() {
+  navigator.virtualKeyboard?.hide();
+  typing.blur();
+}
+
 function pressCombo(codes) {
   for (const c of codes) send({ t: 'kd', c });
   for (const c of [...codes].reverse()) send({ t: 'ku', c });
@@ -507,7 +541,7 @@ function buildKeys() {
 // Yan panel
 function togglePanel(open) {
   $('panel').hidden = !open;
-  $('tab').hidden = open;
+  $('rail').hidden = open;
   $('tab').setAttribute('aria-expanded', String(open));
   if (open) updateStats();
 }
@@ -543,7 +577,10 @@ document.addEventListener('fullscreenchange', () => {
   $('fs-label').textContent = on ? 'Tam ekrandan çık' : 'Tam ekran';
   // Tam ekranda Esc ve Alt+Tab gibi tuşlar da uzak bilgisayara gider.
   if (on) navigator.keyboard?.lock?.().catch(() => {});
-  else navigator.keyboard?.unlock?.();
+  else {
+    navigator.keyboard?.unlock?.();
+    showOrientation('auto');
+  }
 });
 $('actual').onclick = actualSize;
 $('display').onchange = (e) => send({ t: 'display', id: e.target.value });
@@ -551,8 +588,39 @@ $('mode-touch').onclick = () => setTrackpad(false);
 $('mode-track').onclick = () => setTrackpad(true);
 $('kb').onclick = () => {
   togglePanel(false);
-  typing.focus();
+  showKeyboard();
 };
+$('rail-kb').onclick = () => {
+  autoKeyboard = false;
+  if (keyboardVisible()) hideKeyboard();
+  else showKeyboard();
+};
+$('auto-kb').checked = storage.get(AUTO_KB_KEY) !== 'off';
+$('auto-kb').onchange = (e) => storage.set(e.target.checked ? 'on' : 'off', AUTO_KB_KEY);
+
+// Ekran yönü: telefon ayarlarından bağımsız. Tarayıcı kilidi yalnızca tam ekranda verir.
+function showOrientation(mode) {
+  for (const m of ['auto', 'portrait', 'landscape']) $(`o-${m}`).classList.toggle('on', m === mode);
+}
+
+async function setOrientation(mode) {
+  try {
+    if (mode === 'auto') {
+      screen.orientation.unlock();
+    } else {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      await screen.orientation.lock(mode);
+    }
+    showOrientation(mode);
+  } catch {
+    toast('Bu tarayıcı ekran yönünü değiştirmeye izin vermiyor.');
+  }
+}
+
+$('o-auto').onclick = () => setOrientation('auto');
+$('o-portrait').onclick = () => setOrientation('portrait');
+$('o-landscape').onclick = () => setOrientation('landscape');
+$('rail-rotate').onclick = () => setOrientation(innerWidth > innerHeight ? 'portrait' : 'landscape');
 $('q-sharp').onclick = () => setQuality(false);
 $('q-fast').onclick = () => setQuality(true);
 $('sound').onclick = () => {

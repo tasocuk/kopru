@@ -16,6 +16,8 @@ Mac ve Windows bilgisayarlarını telefondan veya başka bir bilgisayardan kontr
 - Mac, Windows ve Android'den tarayıcıyla bağlanma, ek uygulama gerekmez
 - Dokunmatik ve izleme dörtgeni modları, sıkıştırarak zoom
 - Fiziksel ve ekran klavyesi, hazır tuş kombinasyonları
+- Uzak bilgisayarda yazı alanına dokununca telefonda klavyenin otomatik açılması
+- Telefon ayarlarından bağımsız ekran yönü: otomatik, dikey veya yatay
 - İki yönlü pano ve dosya aktarımı
 - Tam ekran, çoklu monitör seçimi, Net ve Hızlı kalite modları
 - Windows bilgisayarlardan ses aktarımı
@@ -109,6 +111,8 @@ TURN verisi Cloudflare üzerinden geçer ama uçtan uca şifreli kalır. Ücret 
 | Dokun | Sol tık |
 | Basılı tut veya iki parmakla dokun | Sağ tık |
 | Tek parmakla sürükle | Sürükleme, izleme dörtgeni modunda imleç |
+| Sağ kenardaki klavye düğmesi | Klavyeyi aç veya kapat |
+| Sağ kenardaki döndürme düğmesi | Ekranı dikey ve yatay arasında çevir |
 | Sıkıştır | Zoom |
 | İki parmakla sürükle | Yakınlaştırılmışken görünümü, değilse uzak ekranı kaydır |
 
@@ -135,6 +139,8 @@ Mac'te `Alt` yerine `Option` kullan.
 - Mac'te kilit ekranındaki kontrol sınırlıdır ve Mac'ten ses aktarılmaz.
 - Bilgisayar uykudayken bağlanılamaz. Köprü'nün açık kalması gerekir.
 - Mac sürümü yalnızca Apple Silicon için derlenir. Uygulamalar imzasızdır.
+- Otomatik klavye, yazı alanını erişilebilirlik bilgisinden anlar. Bazı uygulamalar bu bilgiyi vermez; o zaman klavye düğmesini kullan.
+- Ekran yönü kilidi tam ekran gerektirir ve iPhone Safari'de çalışmaz.
 
 ## Geliştirme
 
@@ -165,6 +171,7 @@ npm run build:win
 | `client/` | Tarayıcı arayüzü |
 | `src/` | Mac ve Windows için Electron uygulaması |
 | `worker/` | Cloudflare Worker ve eşleştirme |
+| `native/` | Mac'te yazı alanı algılama yardımcısı |
 | `scripts/` | Kurulum aracı |
 
 ## Lisans

@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const QRCode = require('qrcode');
 const { createRelay } = require('./relay');
 const { createInput } = require('./input');
+const { createFocusWatcher } = require('./focus');
 
 if (process.env.KOPRU_USERDATA) app.setPath('userData', process.env.KOPRU_USERDATA);
 
@@ -22,6 +23,7 @@ let lastClip = '';
 let clipTimer;
 let upload;
 let download;
+const focusWatcher = createFocusWatcher((text) => toRenderer('to-client', { t: 'focus', text }));
 
 const configPath = () => path.join(app.getPath('userData'), 'cloud.json');
 const readConfig = () => {
@@ -78,6 +80,7 @@ function startRelay() {
       clientConnected: async (iceServers) => {
         new Notification({ title: 'Köprü', body: 'Uzak bağlantı başladı' }).show();
         toRenderer('client-connected', iceServers);
+        focusWatcher.start();
         lastClip = await readClipboard();
         clipTimer = setInterval(async () => {
           const text = await readClipboard();
@@ -89,6 +92,7 @@ function startRelay() {
       signal: (data) => toRenderer('signal', data),
       clientLeft: () => {
         clearInterval(clipTimer);
+        focusWatcher.stop();
         input.releaseAll();
         upload?.stream.destroy();
         upload = null;
@@ -204,6 +208,7 @@ app.whenReady().then(async () => {
 
 app.on('before-quit', () => {
   input?.releaseAll();
+  focusWatcher.stop();
   relay?.close();
 });
 app.on('window-all-closed', () => app.quit());

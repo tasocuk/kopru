@@ -27,6 +27,7 @@
     <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 19h19"/></symbol>
     <symbol id="i-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><rect x="8" y="3" width="9" height="15" rx="2"/><path d="M3 12a8 8 0 0 0 7 9M3 12l-1.5 2.5M3 12l2.5 1.5"/></symbol>
     <symbol id="i-logo" viewBox="3 7 26 18"><path d="M4 22h24M5 22c3-8 7-11 11-11s8 3 11 11M11 22v-7.5M16 22V11M21 22v-7.5"/></symbol>
   </svg>
 
@@ -84,7 +85,11 @@
       <span class="sep"></span>
       <button id="quick-menu" class="icon" title="Denetimler" aria-label="Denetimleri aç"><svg class="i"><use href="#i-menu"/></svg></button>
     </nav>
-    <button id="tab" aria-label="Denetimleri aç" aria-expanded="false"><svg class="i"><use href="#i-menu"/></svg></button>
+    <div id="rail" role="group" aria-label="Hızlı denetimler">
+      <button id="tab" class="icon" aria-label="Denetimleri aç" aria-expanded="false"><svg class="i"><use href="#i-menu"/></svg></button>
+      <button id="rail-kb" class="icon" aria-label="Klavyeyi aç veya kapat"><svg class="i"><use href="#i-keyboard"/></svg></button>
+      <button id="rail-rotate" class="icon" aria-label="Ekranı döndür"><svg class="i"><use href="#i-rotate"/></svg></button>
+    </div>
 
     <aside id="panel" aria-label="Oturum denetimleri" hidden>
       <header class="panel-head">
@@ -112,6 +117,15 @@
           </label>
         </section>
 
+        <section class="touch-only">
+          <h2>Ekran yönü</h2>
+          <div class="seg" role="group" aria-label="Ekran yönü">
+            <button id="o-auto" class="on">Otomatik</button>
+            <button id="o-portrait">Dikey</button>
+            <button id="o-landscape">Yatay</button>
+          </div>
+        </section>
+
         <section>
           <h2>Kontrol</h2>
           <div class="seg" role="group" aria-label="Dokunma modu">
@@ -119,6 +133,7 @@
             <button id="mode-track">İzleme dörtgeni</button>
           </div>
           <button id="kb" class="btn wide"><svg class="i"><use href="#i-keyboard"/></svg> Klavyeyi aç</button>
+          <label class="check touch-only"><input id="auto-kb" type="checkbox" checked> Yazı alanına dokununca klavyeyi aç</label>
           <div class="grid" id="keys"></div>
         </section>
 

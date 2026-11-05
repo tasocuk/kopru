@@ -1,7 +1,7 @@
 {
   "name": "kopru",
   "productName": "Köprü",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Kişisel uzak masaüstü: Electron host, tarayıcı istemcisi, Cloudflare bağlantısı",
   "main": "src/main.js",
@@ -11,8 +11,10 @@
     "test": "node --test test/*.test.js",
     "deploy": "wrangler deploy",
     "build:win": "electron-builder --win portable --x64",
-    "build:mac": "electron-builder --mac zip --arm64",
-    "setup": "node scripts/setup.js"
+    "build:mac": "node scripts/build-native.js && electron-builder --mac zip --arm64",
+    "setup": "node scripts/setup.js",
+    "native": "node scripts/build-native.js",
+    "postinstall": "node scripts/build-native.js"
   },
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
@@ -46,7 +48,13 @@
       "artifactName": "Kopru-${version}-mac-${arch}.${ext}",
       "extendInfo": {
         "NSScreenCaptureUsageDescription": "Köprü, ekranını bağlandığın cihaza göstermek için bu izne ihtiyaç duyar."
-      }
+      },
+      "extraResources": [
+        {
+          "from": "native/focus-mac",
+          "to": "focus-mac"
+        }
+      ]
     }
   },
   "license": "MIT",
