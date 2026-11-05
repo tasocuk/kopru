@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Köprü</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f1216" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg hidden aria-hidden="true">
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 12h8"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5M4 19h16"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 5v11M7.5 11.5L12 16l4.5-4.5M4 19h16"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5a3 3 0 0 1 6 0"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 4v8"/><path d="M7 7.5a7 7 0 1 0 10 0"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6L7.5 10H4zM15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+    <symbol id="i-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+    <symbol id="i-logo" viewBox="3 7 26 18"><path d="M4 22h24M5 22c3-8 7-11 11-11s8 3 11 11M11 22v-7.5M16 22V11M21 22v-7.5"/></symbol>
+  </svg>
+
+  <main id="login" class="center">
+    <form id="login-form" class="card auth">
+      <span class="logo" aria-hidden="true"><svg><use href="#i-logo"/></svg></span>
+      <h1>Köprü</h1>
+      <p class="muted">Bilgisayarlarına her yerden bağlan.</p>
+      <label class="field">
+        <span>Erişim kodu</span>
+        <input id="code" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" autofocus>
+      </label>
+      <label class="check"><input id="remember" type="checkbox" checked> Bu cihazda beni hatırla</label>
+      <button class="btn primary wide">Giriş yap</button>
+      <p id="error" class="note error" role="alert"></p>
+    </form>
+  </main>
+
+  <div id="devices" class="shell" hidden>
+    <header class="appbar">
+      <span class="brand"><span class="logo small" aria-hidden="true"><svg><use href="#i-logo"/></svg></span> Köprü</span>
+      <button id="logout" class="btn ghost">Çıkış yap</button>
+    </header>
+    <main class="content">
+      <h1>Cihazların</h1>
+      <p id="device-count" class="muted"></p>
+      <p id="device-error" class="note error" role="alert"></p>
+      <div id="device-list"></div>
+      <section id="empty" class="empty" hidden>
+        <svg class="i big" aria-hidden="true"><use href="#i-desktop"/></svg>
+        <h2>Çevrimiçi cihaz yok</h2>
+        <p class="muted">Bağlanmak istediğin Mac veya Windows bilgisayarda Köprü'yü aç. Cihaz burada kendiliğinden görünür.</p>
+      </section>
+    </main>
+  </div>
+
+  <main id="session" hidden>
+    <div id="stage"><video id="screen" autoplay playsinline muted></video></div>
+
+    <div id="waiting">
+      <span class="spinner" aria-hidden="true"></span>
+      <strong id="waiting-title">Bağlanıyor</strong>
+      <span class="muted">Güvenli bağlantı kuruluyor</span>
+    </div>
+
+    <input id="typing" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Klavye girişi">
+
+    <nav id="quick" aria-label="Hızlı denetimler">
+      <button id="quick-fs" class="icon" title="Tam ekran (Ctrl+Alt+F)" aria-label="Tam ekran"><svg class="i"><use href="#i-expand"/></svg></button>
+      <span class="sep"></span>
+      <button id="quick-out" class="icon" title="Uzaklaştır (Ctrl+Alt+-)" aria-label="Uzaklaştır"><svg class="i"><use href="#i-minus"/></svg></button>
+      <output id="quick-zoom">%100</output>
+      <button id="quick-in" class="icon" title="Yakınlaştır (Ctrl+Alt+=)" aria-label="Yakınlaştır"><svg class="i"><use href="#i-plus"/></svg></button>
+      <button id="quick-fit" class="icon" title="Ekrana sığdır (Ctrl+Alt+0)" aria-label="Ekrana sığdır"><svg class="i"><use href="#i-fit"/></svg></button>
+      <span class="sep"></span>
+      <button id="quick-menu" class="icon" title="Denetimler" aria-label="Denetimleri aç"><svg class="i"><use href="#i-menu"/></svg></button>
+    </nav>
+    <button id="tab" aria-label="Denetimleri aç" aria-expanded="false"><svg class="i"><use href="#i-menu"/></svg></button>
+
+    <aside id="panel" aria-label="Oturum denetimleri" hidden>
+      <header class="panel-head">
+        <div>
+          <strong id="device-name"></strong>
+          <span id="path-label" class="muted small"></span>
+        </div>
+        <button id="close" class="icon" aria-label="Paneli kapat"><svg class="i"><use href="#i-close"/></svg></button>
+      </header>
+
+      <div class="panel-body">
+        <section>
+          <h2>Görünüm</h2>
+          <button id="fs" class="btn wide"><svg class="i"><use href="#i-expand"/></svg> <span id="fs-label">Tam ekran</span></button>
+          <div class="stepper">
+            <button id="zoom-out" class="btn" aria-label="Uzaklaştır"><svg class="i"><use href="#i-minus"/></svg></button>
+            <output id="zoom-label">%100</output>
+            <button id="zoom-in" class="btn" aria-label="Yakınlaştır"><svg class="i"><use href="#i-plus"/></svg></button>
+            <button id="fit" class="btn">Sığdır</button>
+            <button id="actual" class="btn">1:1</button>
+          </div>
+          <label id="display-row" class="field" hidden>
+            <span>Ekran</span>
+            <select id="display"></select>
+          </label>
+        </section>
+
+        <section>
+          <h2>Kontrol</h2>
+          <div class="seg" role="group" aria-label="Dokunma modu">
+            <button id="mode-touch" class="on">Dokunmatik</button>
+            <button id="mode-track">İzleme dörtgeni</button>
+          </div>
+          <button id="kb" class="btn wide"><svg class="i"><use href="#i-keyboard"/></svg> Klavyeyi aç</button>
+          <div class="grid" id="keys"></div>
+        </section>
+
+        <section>
+          <h2>Kalite</h2>
+          <div class="seg" role="group" aria-label="Görüntü kalitesi">
+            <button id="q-sharp">Net</button>
+            <button id="q-fast">Hızlı</button>
+          </div>
+          <p id="quality-hint" class="muted small"></p>
+          <button id="sound" class="btn wide" hidden><svg class="i"><use href="#i-sound"/></svg> <span id="sound-label">Sesi kapat</span></button>
+        </section>
+
+        <section>
+          <h2>Pano ve dosyalar</h2>
+          <div class="pair">
+            <button id="clip-send" class="btn"><svg class="i"><use href="#i-clip"/></svg> Panomu gönder</button>
+            <button id="clip-get" class="btn" disabled><svg class="i"><use href="#i-clip"/></svg> Uzak panoyu al</button>
+            <button id="upload" class="btn"><svg class="i"><use href="#i-upload"/></svg> Dosya gönder</button>
+            <button id="download" class="btn"><svg class="i"><use href="#i-download"/></svg> Dosya al</button>
+          </div>
+          <input id="file" type="file" hidden>
+        </section>
+
+        <section>
+          <h2>Bağlantı</h2>
+          <dl id="stats"></dl>
+        </section>
+
+        <details>
+          <summary>Hareketler ve kısayollar</summary>
+          <ul class="help">
+            <li><b>Dokun</b> sol tık</li>
+            <li><b>Basılı tut</b> sağ tık</li>
+            <li><b>İki parmakla dokun</b> sağ tık</li>
+            <li><b>Sıkıştır</b> zoom</li>
+            <li><b>İki parmakla sürükle</b> kaydır</li>
+            <li><b>Ctrl+Alt+F</b> tam ekran</li>
+            <li><b>Ctrl+Alt+= / -</b> zoom</li>
+            <li><b>Ctrl+Alt+0</b> sığdır</li>
+          </ul>
+        </details>
+      </div>
+
+      <footer class="panel-foot">
+        <button id="end" class="btn danger wide"><svg class="i"><use href="#i-power"/></svg> Bağlantıyı kes</button>
+      </footer>
+    </aside>
+
+  </main>
+
+  <div id="toast" role="status" hidden></div>
+  <script src="client.js"></script>
+</body>
+</html>

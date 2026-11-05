@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Köprü</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src data:; style-src 'self'; connect-src *">
+<link rel="stylesheet" href="host.css">
+</head>
+<body>
+  <header class="top">
+    <span class="logo" aria-hidden="true"><svg viewBox="3 7 26 18"><path d="M4 22h24M5 22c3-8 7-11 11-11s8 3 11 11M11 22v-7.5M16 22V11M21 22v-7.5"/></svg></span>
+    <div>
+      <h1>Köprü</h1>
+      <p id="device" class="muted"></p>
+    </div>
+  </header>
+
+  <form id="setup" hidden>
+    <p class="muted">Bu bilgisayarı kendi Köprü sunucuna bağla. Bilgiler <code>npm run setup</code> çıktısında yazar.</p>
+    <label>Sunucu adresi
+      <input id="url" type="url" placeholder="https://kopru.adin.workers.dev" autocomplete="off" required>
+    </label>
+    <label>Cihaz anahtarı
+      <input id="token" type="password" autocomplete="off" required>
+    </label>
+    <label>Cihaz adı
+      <input id="name" type="text" maxlength="40" required>
+    </label>
+    <p id="setup-error" class="error" role="alert" hidden></p>
+    <button class="btn primary">Kaydet ve bağlan</button>
+    <button id="cancel" type="button" class="btn" hidden>Vazgeç</button>
+  </form>
+
+  <main id="ready" hidden>
+    <section class="status" id="status-card">
+      <span class="dot"></span>
+      <div>
+        <strong id="status"></strong>
+        <p id="status-hint" class="muted"></p>
+      </div>
+    </section>
+    <button id="kick" class="btn danger" hidden>Bağlantıyı kes</button>
+
+    <section id="perms" class="perms" hidden>
+      <strong>Mac izinleri gerekli</strong>
+      <p class="muted">Sistem Ayarları &gt; Gizlilik ve Güvenlik altından izni açıp Köprü'yü yeniden başlat.</p>
+      <ul id="perm-list"></ul>
+    </section>
+
+    <section class="connect">
+      <img id="qr" alt="Bağlantı adresinin QR kodu">
+      <div>
+        <strong>Başka cihazdan bağlan</strong>
+        <p class="muted">QR kodu okut veya adresi tarayıcıda aç.</p>
+        <a id="link" href="#"></a>
+      </div>
+    </section>
+
+    <footer>
+      <label class="check" id="login-row"><input id="login" type="checkbox"> Bilgisayar açılınca başlat</label>
+      <button id="edit" class="link">Ayarları değiştir</button>
+    </footer>
+  </main>
+  <script src="host.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{
+  "name": "kopru",
+  "productName": "Köprü",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kişisel uzak masaüstü: Electron host, tarayıcı istemcisi, Cloudflare bağlantısı",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:mac": "open -n node_modules/electron/dist/Electron.app --args \"$PWD\"",
+    "test": "node --test test/*.test.js",
+    "deploy": "wrangler deploy",
+    "build:win": "electron-builder --win portable --x64",
+    "build:mac": "electron-builder --mac zip --arm64",
+    "setup": "node scripts/setup.js"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "qrcode": "^1.5.4",
+    "ws": "^8.22.1"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
+    "wrangler": "^4.157.0"
+  },
+  "build": {
+    "appId": "app.kopru.host",
+    "productName": "Kopru",
+    "files": [
+      "src/**"
+    ],
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "portable",
+      "artifactName": "Kopru-${version}.exe"
+    },
+    "mac": {
+      "target": "zip",
+      "identity": "-",
+      "category": "public.app-category.utilities",
+      "artifactName": "Kopru-${version}-mac-${arch}.${ext}",
+      "extendInfo": {
+        "NSScreenCaptureUsageDescription": "Köprü, ekranını bağlandığın cihaza göstermek için bu izne ihtiyaç duyar."
+      }
+    }
+  },
+  "license": "MIT",
+  "author": "Tahsin Karabulut",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tasocuk/kopru.git"
+  }
+}

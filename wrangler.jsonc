@@ -1,0 +1,8 @@
+{
+  "name": "kopru",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-31",
+  "assets": { "directory": "./client", "binding": "ASSETS", "run_worker_first": ["/ws/*"] },
+  "durable_objects": { "bindings": [{ "name": "HUB", "class_name": "Hub" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hub"] }]
+}
