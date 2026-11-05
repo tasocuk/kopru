@@ -15,6 +15,7 @@ let swapMeta = false;
 let trackpad = false;
 let fastMode = false;
 let autoKeyboard = false;
+let textFocused = false;
 let hostError = '';
 let inSession = false;
 let wakeLock;
@@ -173,7 +174,8 @@ function endSession(message) {
   $('clip-get').disabled = true;
   $('sound').hidden = true;
   $('toast').hidden = true;
-  autoKeyboard = false;
+  autoKeyboard = textFocused = false;
+  $('kb-prompt').hidden = true;
   typing.blur();
   $('display-row').hidden = true;
   show(code ? 'devices' : 'login');
@@ -224,11 +226,14 @@ function onControl(ev) {
       navigator.clipboard?.writeText(ev.s).catch(() => {});
       break;
     case 'focus':
+      textFocused = ev.text;
       if (ev.text && $('auto-kb').checked) {
         showKeyboard();
         autoKeyboard = true;
-      } else if (!ev.text && autoKeyboard) {
-        hideKeyboard();
+        setTimeout(offerKeyboard, 700);
+      } else if (!ev.text) {
+        $('kb-prompt').hidden = true;
+        if (autoKeyboard) hideKeyboard();
         autoKeyboard = false;
       }
       break;
@@ -443,6 +448,8 @@ video.addEventListener('touchend', (e) => {
     } else {
       if (!trackpad) send({ t: 'move', ...toRemote(touch.x, touch.y) });
       clickAt('left');
+      // Odak dokunuş sırasında alınır, böylece klavye yanıt gelince açılabilir.
+      if (navigator.virtualKeyboard && $('auto-kb').checked) typing.focus({ preventScroll: true });
     }
   }
   touch = null;
@@ -501,9 +508,15 @@ function keyboardVisible() {
 
 // Tarayıcı klavyeyi yalnızca dokunuştan sonraki birkaç saniye içinde açar.
 function showKeyboard() {
+  $('kb-prompt').hidden = true;
   if (document.activeElement === typing && !navigator.virtualKeyboard) typing.blur();
   typing.focus({ preventScroll: true });
   navigator.virtualKeyboard?.show();
+}
+
+// Dokunuş olmadan tarayıcı klavyeyi açmaz. O zaman tek dokunuşluk düğme gösterilir.
+function offerKeyboard() {
+  if (textFocused && autoKeyboard && !keyboardVisible()) $('kb-prompt').hidden = false;
 }
 
 function hideKeyboard() {
@@ -590,6 +603,7 @@ $('kb').onclick = () => {
   togglePanel(false);
   showKeyboard();
 };
+$('kb-prompt').onclick = showKeyboard;
 $('rail-kb').onclick = () => {
   autoKeyboard = false;
   if (keyboardVisible()) hideKeyboard();

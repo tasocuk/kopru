@@ -1,7 +1,7 @@
 {
   "name": "kopru",
   "productName": "Köprü",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Kişisel uzak masaüstü: Electron host, tarayıcı istemcisi, Cloudflare bağlantısı",
   "main": "src/main.js",

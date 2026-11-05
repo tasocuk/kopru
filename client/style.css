@@ -105,6 +105,7 @@ button:disabled { cursor: default; }
 @media (hover: none) { #quick { display: none; } }
 @media (hover: hover) { #rail, .touch-only { display: none !important; } }
 
+#kb-prompt { position: absolute; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translateX(-50%); box-shadow: 0 8px 28px #0008; white-space: nowrap; }
 #panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(340px, 90vw); display: flex; flex-direction: column; background: var(--surface); border-left: 1px solid var(--line); box-shadow: -12px 0 40px #0006; color-scheme: dark; animation: slide .16s ease-out; }
 @media (prefers-color-scheme: light) { #panel { color-scheme: light; } }
 @keyframes slide { from { transform: translateX(24px); opacity: 0; } }

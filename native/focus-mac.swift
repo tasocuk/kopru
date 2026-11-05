@@ -3,7 +3,8 @@ import AppKit
 import ApplicationServices
 
 let textRoles: Set<String> = ["AXTextField", "AXTextArea", "AXComboBox", "AXSearchField"]
-var preparedApp: pid_t = 0
+var prepared = Set<pid_t>()
+var running = true
 var last = ""
 
 func attribute(_ element: AXUIElement, _ name: String) -> AnyObject? {
@@ -12,11 +13,20 @@ func attribute(_ element: AXUIElement, _ name: String) -> AnyObject? {
     return value
 }
 
-// Chromium tabanlı uygulamalar erişilebilirlik ağacını ancak istenince açar.
+// Chrome ve Brave sayfa içi yazı alanlarını ancak bu ayarlarla bildirir. İlk seferde 2-3 saniye sürebilir.
 func prepareFrontmostApp() {
-    guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier, pid != preparedApp else { return }
-    preparedApp = pid
-    AXUIElementSetAttributeValue(AXUIElementCreateApplication(pid), "AXManualAccessibility" as CFString, kCFBooleanTrue)
+    guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier, !prepared.contains(pid) else { return }
+    prepared.insert(pid)
+    let app = AXUIElementCreateApplication(pid)
+    AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue)
+    AXUIElementSetAttributeValue(app, "AXEnhancedUserInterface" as CFString, kCFBooleanTrue)
+}
+
+// Bu ayar pencere animasyonlarını yavaşlatabildiği için oturum bitince geri alınır.
+func restoreApps() {
+    for pid in prepared {
+        AXUIElementSetAttributeValue(AXUIElementCreateApplication(pid), "AXEnhancedUserInterface" as CFString, kCFBooleanFalse)
+    }
 }
 
 // Sistem genelindeki öğe yeni macOS sürümlerinde hata verdiği için öndeki uygulama sorgulanır.
@@ -28,7 +38,9 @@ func focusedIsText() -> Bool {
     return attribute(element, "AXEditableAncestor") != nil
 }
 
-while getppid() != 1 {
+signal(SIGTERM) { _ in running = false }
+
+while running && getppid() != 1 {
     prepareFrontmostApp()
     let state = focusedIsText() ? "1" : "0"
     if state != last {
@@ -38,3 +50,5 @@ while getppid() != 1 {
     }
     RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.25))
 }
+
+restoreApps()

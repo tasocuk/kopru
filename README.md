@@ -140,6 +140,8 @@ Mac'te `Alt` yerine `Option` kullan.
 - Bilgisayar uykudayken bağlanılamaz. Köprü'nün açık kalması gerekir.
 - Mac sürümü yalnızca Apple Silicon için derlenir. Uygulamalar imzasızdır.
 - Otomatik klavye, yazı alanını erişilebilirlik bilgisinden anlar. Bazı uygulamalar bu bilgiyi vermez; o zaman klavye düğmesini kullan.
+- Tarayıcılar klavyeyi yalnızca telefona dokunduktan kısa süre sonra açar. Yazı alanı kendiliğinden açılırsa ekranda **Yazmak için dokun** düğmesi çıkar.
+- Mac'te Chrome ve Brave'de bir sekmedeki ilk algılama 2-3 saniye sürebilir.
 - Ekran yönü kilidi tam ekran gerektirir ve iPhone Safari'de çalışmaz.
 
 ## Geliştirme
